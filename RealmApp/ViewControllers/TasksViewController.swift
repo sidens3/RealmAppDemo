@@ -28,6 +28,8 @@ class TasksViewController: UITableViewController {
         
         currentTasks = taskList.tasks.filter("isComplete = false")
         completedTasks = taskList.tasks.filter("isComplete = true")
+        
+        updateNavBarItems()
     }
     
     // MARK: - Table view data source
@@ -60,6 +62,7 @@ class TasksViewController: UITableViewController {
         let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { _, _, _ in
             StorageManager.shared.delete(task)
             tableView.deleteRows(at: [indexPath], with: .automatic)
+            self.updateNavBarItems()
         }
         
         let editAction = UIContextualAction(style: .normal, title: "Edit") { _, _, isDone in
@@ -116,5 +119,10 @@ extension TasksViewController {
         StorageManager.shared.save(task, to: taskList)
         let rowIndex = IndexPath(row: currentTasks.index(of: task) ?? 0, section: 0)
         tableView.insertRows(at: [rowIndex], with: .automatic)
+        updateNavBarItems()
+    }
+    
+    private func updateNavBarItems() {
+        editButtonItem.isEnabled = taskList.tasks.count != 0 ? true : false
     }
 }
