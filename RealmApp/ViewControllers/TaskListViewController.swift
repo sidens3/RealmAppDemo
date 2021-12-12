@@ -8,6 +8,11 @@
 
 import RealmSwift
 
+enum SortedConfiguration {
+    case date
+    case literal
+}
+
 class TaskListViewController: UITableViewController {
 
     var taskLists: Results<TaskList>!
@@ -24,6 +29,7 @@ class TaskListViewController: UITableViewController {
         navigationItem.leftBarButtonItem = editButtonItem
         createTempData()
         taskLists = StorageManager.shared.realm.objects(TaskList.self)
+        sortTaskList(by: .date)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -82,7 +88,23 @@ class TaskListViewController: UITableViewController {
         tasksVC.taskList = taskList
     }
 
-    @IBAction func sortingList(_ sender: UISegmentedControl) {
+    @IBAction func sortingList(_ sender: UISegmentedControl) {        
+        switch sender.selectedSegmentIndex {
+        case 0:
+            sortTaskList(by: .date)
+        default:
+            sortTaskList(by: .literal)
+        }
+    }
+    
+    private func sortTaskList(by sortedConfiguration: SortedConfiguration) {
+        switch sortedConfiguration {
+        case .date:
+            taskLists = taskLists.sorted(byKeyPath: "date", ascending: false)
+        case .literal:
+            taskLists = taskLists.sorted(byKeyPath: "name")
+        }
+        tableView.reloadData()
     }
     
     @objc private func addButtonPressed() {
